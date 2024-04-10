@@ -64,7 +64,7 @@ def forecast():
         response = requests.get(url)
         data = response.json()
         if data.get('cod') == '404':
-            return 'City not found!Please try again', 404
+            return 'City not found!Please try later', 404
     except Exception as e:
         print(e)
         return 'An error occurred while processing your request.', 500
