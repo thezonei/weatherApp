@@ -45,8 +45,9 @@
     - name: "Copying local files"
       copy:
         src:
-          - /static
-          - /templates
+          - /static/style.css
+          - /templates/index.html
+          - /templates/result.html
           - main.py
         dest: "/myfile1/"
 
