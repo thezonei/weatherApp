@@ -1,11 +1,10 @@
 ---
 - hosts: ec2-instance
-
   become: true
   tasks:
     - name: Install required system packages
       apt:
-        pkg: 
+        pkg:
           - apt-transport-https
           - ca-certificates
           - curl
@@ -14,12 +13,12 @@
           - virtualenv
           - python-setuptools
         update_cache: true
-        
+
     - name: Add Docker GPG apt Key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-      
+
     - name: Add Docker Repository
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
@@ -27,31 +26,30 @@
 
     - name: Update apt and install docker-ce and docker-compose
       apt:
-        pkg: 
+        pkg:
           - docker-ce
           - docker-compose
         state: latest
         update_cache: true
-        
+
     - name: Install Docker Module for Python
       pip:
         name: docker
-        
+
     - name: Creating folder and copying html file
       file:
         path: "/myfile1"
         state: directory
-        mode: "0755"  
-      
+        mode: "0755"
+
     - name: "Copying local files"
       copy:
-	src:
-	   - /static
-	   - /templates
-	   - main.py
-			         
+        src:
+          - /static
+          - /templates
+          - main.py
         dest: "/myfile1/"
-        
+
     - name: Creating container using HTTPD Image
       docker_container:
         name: "Mywebserver4"
@@ -62,4 +60,4 @@
         ports:
           - "81:81"
         volumes:
-          - "/myfile:/usr/local/apache2/htdocs/" 
+          - "/myfile:/usr/local/apache2/htdocs/"
