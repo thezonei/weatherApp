@@ -45,9 +45,7 @@
     - name: "Copying local files"
       copy:
         src:
-          - "/home/thezonei/weatherApp/static"
-          - "/home/thezonei/weatherApp/templates"
-          - "/home/thezonei/weatherApp/main.py"
+          - "main.py"
         dest: "/myfile1/"
 
     - name: Creating container using HTTPD Image
