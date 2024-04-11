@@ -42,23 +42,23 @@
         state: directory
         mode: "0755"
 
-   - name: Copy static files
-     copy:
-       src: "/home/username/weatherApp/static"
-       dest: "/myfile1/"
-     become: true
+    - name: Copy static files
+      copy:
+        src: "/home/thezonei/weatherApp/static"
+        dest: "/myfile1/"
+      become: true
 
-     - name: Copy templates
-     copy:
-       src: "/home/username/weatherApp/templates"
-       dest: "/myfile1/"
-     become: true
+    - name: Copy templates
+      copy:
+        src: "/home/thezonei/weatherApp/templates"
+        dest: "/myfile1/"
+      become: true
 
-     - name: main
-     copy:
-       src: "/home/username/weatherApp/main.py"
-       dest: "/myfile1/"
-     become: true  
+    - name: Copy main.py
+      copy:
+        src: "/home/thezonei/weatherApp/main.py"
+        dest: "/myfile1/"
+      become: true  
 
     - name: Creating container using HTTPD Image
       docker_container:
@@ -70,4 +70,4 @@
         ports:
           - "81:81"
         volumes:
-          - "/myfile:/usr/local/apache2/htdocs/"
+          - "/myfile1:/usr/local/apache2/htdocs/"
