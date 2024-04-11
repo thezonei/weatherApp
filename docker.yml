@@ -45,10 +45,10 @@
     - name: "Copying local files"
       copy:
         src:
-          - /static/style.css
-          - /templates/index.html
-          - /templates/result.html
-          - main.py
+          - weatherApp/static/style.css
+          - weatherApp/templates/index.html
+          - weatherApp/templates/result.html
+          - weatherApp/main.py
         dest: "/myfile1/"
 
     - name: Creating container using HTTPD Image
