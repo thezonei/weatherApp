@@ -36,29 +36,12 @@
       pip:
         name: docker
 
-    - name: Creating folder and copying html file
-      file:
-        path: "/myfile1"
-        state: directory
-        mode: "0755"
-
-    - name: Copy static files
-      copy:
-        src: "/home/thezonei/weatherApp/static"
-        dest: "/myfile1/"
-      become: true
-
-    - name: Copy templates
-      copy:
-        src: "/home/thezonei/weatherApp/templates"
-        dest: "/myfile1/"
-      become: true
-
     - name: Copy main.py
       copy:
-        src: "/home/thezonei/weatherApp/main.py"
+        src: "main.py"
         dest: "/myfile1/"
       become: true  
+      remote_src: yes
 
     - name: Creating container using HTTPD Image
       docker_container:
