@@ -64,6 +64,6 @@
         exposed_ports:
           - "8001"
         ports:
-          - "81:81"
+          - "8001:8001"
         volumes:
           - "/myfile1:/usr/local/apache2/htdocs/"
