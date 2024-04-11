@@ -40,6 +40,11 @@
       copy:
         src: "main.py"
         dest: "/myfile1/"
+        
+    - name: "Copying static files"
+      copy:
+        src: "static/style.css"
+        dest: "/myfile1/"
 
     - name: Creating container using HTTPD Image
       docker_container:
