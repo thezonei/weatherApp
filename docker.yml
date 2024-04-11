@@ -36,12 +36,10 @@
       pip:
         name: docker
 
-    - name: Copy main.py
+    - name: "Copying local files"
       copy:
         src: "main.py"
         dest: "/myfile1/"
-      become: true  
-      remote_src: yes
 
     - name: Creating container using HTTPD Image
       docker_container:
