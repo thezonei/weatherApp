@@ -42,11 +42,23 @@
         state: directory
         mode: "0755"
 
-    - name: "Copying local files"
-      copy:
-        src:
-          - "main.py"
-        dest: "/myfile1/"
+   - name: Copy static files
+     copy:
+       src: "/home/username/weatherApp/static"
+       dest: "/myfile1/"
+     become: true
+
+     - name: Copy templates
+     copy:
+       src: "/home/username/weatherApp/templates"
+       dest: "/myfile1/"
+     become: true
+
+     - name: main
+     copy:
+       src: "/home/username/weatherApp/main.py"
+       dest: "/myfile1/"
+     become: true  
 
     - name: Creating container using HTTPD Image
       docker_container:
