@@ -1,4 +1,3 @@
----
 - hosts: ec2-instance
   become: true
   tasks:
@@ -13,15 +12,15 @@
           - virtualenv
           - python-setuptools
         update_cache: true
-        
+
     - name: Install web app dependencies
       pip:
         name: "{{ packages }}"
         state: present
-      var:
+      vars:
         packages:
-        - Flask
-        - requests
+          - Flask
+          - requests
 
     - name: Add Docker GPG apt Key
       apt_key:
