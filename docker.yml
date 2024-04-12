@@ -13,6 +13,15 @@
           - virtualenv
           - python-setuptools
         update_cache: true
+        
+    - name: Install web app dependencies
+      pip:
+        name: "{{ packages }}"
+        state: present
+      var:
+        packages:
+        - Flask
+        - requests
 
     - name: Add Docker GPG apt Key
       apt_key:
