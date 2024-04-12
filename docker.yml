@@ -52,17 +52,17 @@
     - name: "Copying static files"
       copy:
         src: "static/style.css"
-        dest: "/var/www/html"
+        dest: "/myfile1/"
         
     - name: "Copying templates files"
       copy:
         src: "templates/index.html"
-        dest: "/var/www/html"
+        dest: "/myfile1/"
         
     - name: "Copying result html file"
       copy:
         src: "templates/result.html"
-        dest: "/var/www/html"
+        dest: "/myfile1/"
 
     - name: Creating container using HTTPD Image
       docker_container:
