@@ -5,8 +5,7 @@
 # https://docs.docker.com/go/dockerfile-reference/
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
-FROM nginx:alpine
-COPY . /usr/share/nginx/html
+
 
 ARG PYTHON_VERSION=3.8.10
 FROM python:${PYTHON_VERSION}-slim as base
