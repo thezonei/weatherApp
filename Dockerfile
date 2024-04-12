@@ -45,10 +45,10 @@ USER appuser
 # Copy the source code into the container.
 COPY . .
 #--update
-FROM nginx:alpine
+# FROM nginx:alpine
 
-# Copy the built static files from the first stage to the nginx HTML directory
-COPY --from=builder /app /usr/share/nginx/html
+# # Copy the built static files from the first stage to the nginx HTML directory
+# COPY --from=builder /app /usr/share/nginx/html
 #--update
 # Expose the port that the application listens on.
 #EXPOSE 8001
