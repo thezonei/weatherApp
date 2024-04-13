@@ -63,14 +63,32 @@
         - { src: "templates/index.html", dest: "/myfile1/templates/" }
         - { src: "templates/result.html", dest: "/myfile1/templates/" }
 
-    - name: Creating container using HTTPD Image
+    # - name: Creating container using HTTPD Image
+    #   docker_container:
+    #     name: "Mywebserver4"
+    #     image: "httpd"
+    #     state: started
+    #     exposed_ports:
+    #       - "80"
+    #     ports:
+    #       - "80:80"
+    #     volumes:
+    #       - "/myfile1:/usr/local/apache2/htdocs/"
+    - name: Build Docker image from Dockerfile
+      docker_image:
+        path: "/path/to/docker/context"
+        name: my_flask_app
+        state: build
+
+    - name: Run Flask app container
       docker_container:
-        name: "Mywebserver4"
-        image: "httpd"
+        name: "flask_app"
+        image: "my_flask_app"
         state: started
+        restart_policy: always
         exposed_ports:
           - "80"
         ports:
           - "80:80"
         volumes:
-          - "/myfile1:/usr/local/apache2/htdocs/"
+          - "/myfile1:/app"
