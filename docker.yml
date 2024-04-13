@@ -44,25 +44,24 @@
       pip:
         name: docker
 
-    - name: "Copying local files"
+    - name: Create project directory structure
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /myfile1
+        - /myfile1/static
+        - /myfile1/templates
+
+    - name: Copy local files
       copy:
-        src: "main.py"
-        dest: "/myfile1/"
-        
-    - name: "Copying static files"
-      copy:
-        src: "static/style.css"
-        dest: "/myfile1/"
-        
-    - name: "Copying templates files"
-      copy:
-        src: "templates/index.html"
-        dest: "/myfile1/"
-        
-    - name: "Copying result html file"
-      copy:
-        src: "templates/result.html"
-        dest: "/myfile1/"
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - { src: "main.py", dest: "/myfile1/" }
+        - { src: "static/style.css", dest: "/myfile1/static/" }
+        - { src: "templates/index.html", dest: "/myfile1/templates/" }
+        - { src: "templates/result.html", dest: "/myfile1/templates/" }
 
     - name: Creating container using HTTPD Image
       docker_container:
