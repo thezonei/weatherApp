@@ -39,17 +39,17 @@
         button:hover {
             background-color: #0056b3;
         }
+        .weather, .forecast {
+            text-align: center;
+            margin-top: 20px;
+        }
         .forecast-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 10px;
-            margin-top: 20px;
         }
         .forecast-item {
             text-align: center;
-        }
-        .weather, .forecast {
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -70,18 +70,54 @@
     </div>
 
     <script>
+        document.getElementById('weatherBtn').addEventListener('click', function() {
+            var city = document.getElementById('cityInput').value;
+            if (city) fetchCurrentWeather(city);
+        });
+
         document.getElementById('forecastBtn').addEventListener('click', function() {
-            const city = document.getElementById('cityInput').value;
+            var city = document.getElementById('cityInput').value;
             if (city) fetchCoordinates(city);
         });
 
-        function fetchCoordinates(city) {
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47`)
+        function fetchCurrentWeather(city) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
             .then(response => response.json())
             .then(data => {
-                fetch7DayForecast(data.coord.lat, data.coord.lon);
+                if(data.cod === 200) {
+                    const weatherData = `
+                        <h2>${data.name}, ${data.sys.country}</h2>
+                        <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
+                        <p>Temperature: ${data.main.temp}°C</p>
+                        <p>Feels Like: ${data.main.feels_like}°C</p>
+                        <p>Humidity: ${data.main.humidity}%</p>
+                        <p>Description: ${data.weather[0].description}</p>
+                    `;
+                    document.getElementById('weatherResult').innerHTML = weatherData;
+                } else {
+                    throw new Error(`${data.message}`);
+                }
             })
-            .catch(error => console.error('Error fetching coordinates:', error));
+            .catch(error => {
+                console.error('Error fetching weather:', error);
+                document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data: ${error.message}</p>`;
+            });
+        }
+
+        function fetchCoordinates(city) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=your_api_key`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.cod === 200) {
+                    fetch7DayForecast(data.coord.lat, data.coord.lon);
+                } else {
+                    throw new Error(`${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching coordinates:', error);
+                document.getElementById('forecastResult').innerHTML = `<p>Error fetching coordinates: ${error.message}</p>`;
+            });
         }
 
         function fetch7DayForecast(lat, lon) {
@@ -90,7 +126,10 @@
             .then(data => {
                 displayForecast(data.daily);
             })
-            .catch(error => console.error('Error fetching forecast:', error));
+            .catch(error => {
+                console.error('Error fetching forecast:', error);
+                document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${error.message}</p>`;
+            });
         }
 
         function displayForecast(dailyForecast) {
@@ -108,7 +147,7 @@
                         <p>Temp: ${day.temp.day}°C</p>
                         <p>${day.weather[0].description}</p>
                     `;
-                    grid.appendChild(forestItem);
+                    grid.appendChild(forecastItem);
                 }
             });
             container.appendChild(grid);
