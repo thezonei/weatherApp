@@ -79,6 +79,7 @@
         path: "/path/to/docker/context"
         name: my_flask_app
         state: build
+        state: present
 
     - name: Run Flask app container
       docker_container:
