@@ -44,24 +44,25 @@
       pip:
         name: docker
 
-    - name: Create project directory structure
-      file:
-        path: "{{ item }}"
-        state: directory
-      with_items:
-        - /myfile1
-        - /myfile1/static
-        - /myfile1/templates
-
-    - name: Copy local files
+    - name: "Copying local files"
       copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-      with_items:
-        - { src: "main.py", dest: "/myfile1/" }
-        - { src: "static/style.css", dest: "/myfile1/static/" }
-        - { src: "templates/index.html", dest: "/myfile1/templates/" }
-        - { src: "templates/result.html", dest: "/myfile1/templates/" }
+        src: "main.py"
+        dest: "/myfile1/"
+        
+    - name: "Copying static files"
+      copy:
+        src: "static/style.css"
+        dest: "/myfile1/"
+        
+    - name: "Copying templates files"
+      copy:
+        src: "templates/index.html"
+        dest: "/myfile1/"
+        
+    - name: "Copying result html file"
+      copy:
+        src: "templates/result.html"
+        dest: "/myfile1/"
 
     - name: Creating container using HTTPD Image
       docker_container:
@@ -74,23 +75,3 @@
           - "80:80"
         volumes:
           - "/myfile1:/usr/local/apache2/htdocs/"
-    # - name: Build and tag the Docker image
-    #   docker_image:
-    #     path: "/path/to/docker/context"
-    #     name: "my_flask_app"
-    #     tag: "v1.0"
-    #     source: build
-    #     state: present
-
-    # - name: Run Flask app container
-    #   docker_container:
-    #     name: "flask_app"
-    #     image: "my_flask_app"
-    #     state: started
-    #     restart_policy: always
-    #     exposed_ports:
-    #       - "80"
-    #     ports:
-    #       - "80:80"
-    #     volumes:
-    #       - "/myfile1:/app"
