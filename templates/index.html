@@ -105,7 +105,7 @@
         }
 
         function fetchCoordinates(city) {
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=your_api_key`)
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47`)
             .then(response => response.json())
             .then(data => {
                 if(data.cod === 200) {
