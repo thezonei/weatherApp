@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Website</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
         }
         .container {
-            max-width: 500px;
+            max-width: 800px;
             margin: 50px auto;
             padding: 20px;
             background-color: #fff;
@@ -21,51 +20,44 @@
         }
         h1 {
             text-align: center;
-            margin-bottom: 30px;
             color: #333;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
+        .input-group {
             margin-bottom: 20px;
         }
-        .button-group {
-            display: flex;
-            justify-content: space-between;
+        input[type="text"], button {
+            padding: 10px;
+            border-radius: 5px;
         }
         button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+            cursor: pointer;
             background-color: #007bff;
             color: #fff;
-            font-size: 16px;
-            cursor: pointer;
+            border: none;
+            margin-left: 5px;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .weather, .forecast {
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .forecast-item {
             text-align: center;
-            margin-top: 30px;
         }
-        img {
-            margin-bottom: 20px;
-        }
-        p {
-            margin: 10px 0;
-            color: #555;
+        .weather, .forecast {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Weather Website</h1>
-        <input type="text" id="cityInput" name="city" class="form-control" placeholder="Enter city name" required>
-        <div class="button-group">
+        <div class="input-group">
+            <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
             <button id="weatherBtn">Get Weather</button>
             <button id="forecastBtn">7 Day Forecast</button>
         </div>
@@ -78,57 +70,48 @@
     </div>
 
     <script>
-        document.getElementById('weatherBtn').addEventListener('click', function() {
-            var city = document.getElementById('cityInput').value;
-            if(city) fetchCurrentWeather(city);
-        });
-
         document.getElementById('forecastBtn').addEventListener('click', function() {
-            var city = document.getElementById('cityInput').value;
-            if(city) fetch7DayForecast(city);
+            const city = document.getElementById('cityInput').value;
+            if (city) fetchCoordinates(city);
         });
 
-        function fetchCurrentWeather(city) {
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
+        function fetchCoordinates(city) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47`)
             .then(response => response.json())
             .then(data => {
-                const weatherData = `
-                    <h2>${data.name}, ${data.sys.country}</h2>
-                    <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
-                    <p>Temperature: ${data.main.temp}°C</p>
-                    <p>Feels Like: ${data.main.feels_like}°C</p>
-                    <p>Humidity: ${data.main.humidity}%</p>
-                    <p>Description: ${data.weather[0].description}</p>
-                `;
-                document.getElementById('weatherResult').innerHTML = weatherData;
+                fetch7DayForecast(data.coord.lat, data.coord.lon);
             })
-            .catch(error => {
-                console.error('Error fetching weather:', error);
-                document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data.</p>`;
-            });
+            .catch(error => console.error('Error fetching coordinates:', error));
         }
 
-        function fetch7DayForecast(city) {
-            fetch(`https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=current,minutely,hourly,alerts&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
+        function fetch7DayForecast(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
             .then(response => response.json())
             .then(data => {
-                let forecastData = '<h2>7 Day Forecast</h2>';
-                data.daily.forEach((day, index) => {
-                    if(index < 7) {
-                        forecastData += `
-                            <div>
-                                <img src="http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" alt="Weather Icon">
-                                <p>Day ${index + 1}: ${day.temp.day}°C - ${day.weather[0].description}</p>
-                            </div>
-                        `;
-                    }
-                });
-                document.getElementById('forecastResult').innerHTML = forecastData;
+                displayForecast(data.daily);
             })
-            .catch(error => {
-                console.error('Error fetching forecast:', error);
-                document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data.</p>`;
+            .catch(error => console.error('Error fetching forecast:', error));
+        }
+
+        function displayForecast(dailyForecast) {
+            const container = document.getElementById('forecastResult');
+            container.innerHTML = '<h2>7 Day Forecast</h2>';
+            const grid = document.createElement('div');
+            grid.className = 'forecast-grid';
+            dailyForecast.forEach((day, index) => {
+                if (index < 7) {  // Display only the first 7 days
+                    const forecastItem = document.createElement('div');
+                    forecastItem.className = 'forecast-item';
+                    forecastItem.innerHTML = `
+                        <img src="http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" alt="Weather Icon">
+                        <p>${new Date(day.dt * 1000).toLocaleDateString()}</p>
+                        <p>Temp: ${day.temp.day}°C</p>
+                        <p>${day.weather[0].description}</p>
+                    `;
+                    grid.appendChild(forestItem);
+                }
             });
+            container.appendChild(grid);
         }
     </script>
 </body>
