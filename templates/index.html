@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Website</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="style.css"> <!-- Directly link to the CSS file assuming it's in the same directory -->
     <style>
         body {
             background-color: #f8f9fa;
@@ -70,7 +68,7 @@
 
 <body>
     <div class="container">
-        <h1>Update Weather Webite</h1>
+        <h1>Weather Website</h1>
         <form method="GET" action="/forecast">
             <div class="input-group">
                 <input type="text" id="cityInput" name="city" class="form-control" placeholder="Enter city name" required>
@@ -81,16 +79,14 @@
             </div>
         </form>
 
-        {% if data %}
         <div class="weather">
-            <h2>{{ data.name }}, {{ data.sys['country'] }}</h2>
-            <img src="http://openweathermap.org/img/wn/{{ data.weather[0]['icon'] }}@2x.png" alt="Weather Icon">
-            <p>Temperature: {{ data.main['temp'] }}&deg;C</p>
-            <p>Feels Like: {{ data.main['feels_like'] }}&deg;C</p>
-            <p>Humidity: {{ data.main['humidity'] }}%</p>
-            <p>Description: {{ data.weather[0]['description'] }}</p>
+            <h2>City, Country</h2>
+            <img src="http://openweathermap.org/img/wn/01d@2x.png" alt="Weather Icon">
+            <p>Temperature: 20°C</p>
+            <p>Feels Like: 22°C</p>
+            <p>Humidity: 80%</p>
+            <p>Description: Clear sky</p>
         </div>
-        {% endif %}
     </div>
 
     <script>
@@ -105,5 +101,3 @@
 </body>
 
 </html>
-
-
