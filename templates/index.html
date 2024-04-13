@@ -7,20 +7,17 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-image: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
             font-family: Arial, sans-serif;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 50px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
+            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
         }
         .input-group {
             margin-bottom: 20px;
@@ -29,19 +26,18 @@
             padding: 10px;
             border-radius: 5px;
         }
+        input[type="text"] {
+            width: calc(100% - 120px);
+        }
         button {
             cursor: pointer;
             background-color: #007bff;
             color: #fff;
             border: none;
-            margin-left: 5px;
+            width: 100px;
         }
         button:hover {
             background-color: #0056b3;
-        }
-        .weather, .forecast {
-            text-align: center;
-            margin-top: 20px;
         }
         .forecast-grid {
             display: grid;
@@ -50,6 +46,14 @@
         }
         .forecast-item {
             text-align: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .weather, .forecast {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -77,14 +81,14 @@
 
         document.getElementById('forecastBtn').addEventListener('click', function() {
             var city = document.getElementById('cityInput').value;
-            if (city) fetchCoordinates(city);
+            if (city) fetch7DayForecast(city);
         });
 
         function fetchCurrentWeather(city) {
             fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
             .then(response => response.json())
             .then(data => {
-                if(data.cod === 200) {
+                if (data.cod === 200) {
                     const weatherData = `
                         <h2>${data.name}, ${data.sys.country}</h2>
                         <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
@@ -104,27 +108,15 @@
             });
         }
 
-        function fetchCoordinates(city) {
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47`)
+        function fetch7DayForecast(city) {
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
             .then(response => response.json())
             .then(data => {
-                if(data.cod === 200) {
-                    fetch7DayForecast(data.coord.lat, data.coord.lon);
+                if (data.cod === "200") {
+                    displayForecast(data.list);
                 } else {
                     throw new Error(`${data.message}`);
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching coordinates:', error);
-                document.getElementById('forecastResult').innerHTML = `<p>Error fetching coordinates: ${error.message}</p>`;
-            });
-        }
-
-        function fetch7DayForecast(lat, lon) {
-            fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
-            .then(response => response.json())
-            .then(data => {
-                displayForecast(data.daily);
             })
             .catch(error => {
                 console.error('Error fetching forecast:', error);
@@ -132,25 +124,41 @@
             });
         }
 
-        function displayForecast(dailyForecast) {
+        function displayForecast(forecasts) {
+            const groupedForecasts = groupForecastsByDay(forecasts);
             const container = document.getElementById('forecastResult');
             container.innerHTML = '<h2>7 Day Forecast</h2>';
-            const grid = document.createElement('div');
-            grid.className = 'forecast-grid';
-            dailyForecast.forEach((day, index) => {
-                if (index < 7) {  // Display only the first 7 days
-                    const forecastItem = document.createElement('div');
-                    forecastItem.className = 'forecast-item';
-                    forecastItem.innerHTML = `
-                        <img src="http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" alt="Weather Icon">
-                        <p>${new Date(day.dt * 1000).toLocaleDateString()}</p>
-                        <p>Temp: ${day.temp.day}°C</p>
-                        <p>${day.weather[0].description}</p>
+            Object.keys(groupedForecasts).forEach(day => {
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'day-container';
+                dayContainer.innerHTML = `<h2 class="day-header">${day}</h2>`;
+                const squareContainer = document.createElement('div');
+                squareContainer.className = 'forecast-grid';
+                groupedForecasts[day].forEach(forecast => {
+                    const square = document.createElement('div');
+                    square.className = 'forecast-item';
+                    square.innerHTML = `
+                        <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png" alt="Weather Icon">
+                        <p>${new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p>${forecast.main.temp}°C</p>
+                        <p>${forecast.weather[0].description}</p>
                     `;
-                    grid.appendChild(forecastItem);
-                }
+                    squareContainer.appendChild(square);
+                });
+                dayContainer.appendChild(squareContainer);
+                container.appendChild(dayContainer);
             });
-            container.appendChild(grid);
+        }
+
+        function groupForecastsByDay(forecasts) {
+            return forecasts.reduce((group, forecast) => {
+                const date = new Date(forecast.dt * 1000).toDateString();
+                if (!group[date]) {
+                    group[date] = [];
+                }
+                group[date].push(forecast);
+                return group;
+            }, {});
         }
     </script>
 </body>
