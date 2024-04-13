@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Website</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css"> <!-- Directly link to the CSS file assuming it's in the same directory -->
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
         }
-
         .container {
             max-width: 500px;
             margin: 50px auto;
@@ -21,13 +19,11 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
-
         h1 {
             text-align: center;
             margin-bottom: 30px;
             color: #333;
         }
-
         input[type="text"] {
             width: calc(100% - 105px);
             padding: 10px;
@@ -35,7 +31,6 @@
             border-radius: 5px 0 0 5px;
             font-size: 16px;
         }
-
         button {
             padding: 10px 20px;
             border: none;
@@ -45,42 +40,33 @@
             font-size: 16px;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         .weather {
             text-align: center;
             margin-top: 30px;
         }
-
         img {
             margin-bottom: 20px;
         }
-
         p {
             margin: 10px 0;
             color: #555;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1>Weather App</h1>
-<!--         <form method="GET" action="/forecast"> -->
-          <form id="weatherForm">
+        <h1>Weather Website</h1>
+        <form id="weatherForm">
             <div class="input-group">
                 <input type="text" id="cityInput" name="city" class="form-control" placeholder="Enter city name" required>
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-primary">Get Weather</button>
-                    <button type="button" id="sevenDayForecastBtn" class="btn btn-secondary">7 Day Forecast</button>
                 </div>
             </div>
         </form>
-
-<!--         <div class="weather"> -->
         <div class="weather" id="weatherResult">
             <h2>Vancouver, Canada</h2>
             <img src="http://openweathermap.org/img/wn/01d@2x.png" alt="Weather Icon">
@@ -90,11 +76,12 @@
             <p>Description: Clear sky</p>
         </div>
     </div>
+
     <script>
         document.getElementById('weatherForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting in the traditional way
             var city = document.getElementById('cityInput').value;
-            fetch('https://api.openweathermap.org/data/2.5/weather?q=' + encodeURIComponent(city) + '&appid=09e1bd599470636b1cafa4556cab1d47&units=metric')
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=09e1bd599470636b1cafa4556cab1d47&units=metric`)
             .then(response => response.json())
             .then(data => {
                 const weatherData = `
@@ -107,19 +94,11 @@
                 `;
                 document.getElementById('weatherResult').innerHTML = weatherData;
             })
-            .catch(error => console.error('Error fetching weather:', error));
+            .catch(error => {
+                console.error('Error fetching weather:', error);
+                document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data.</p>`;
+            });
         });
     </script>
-
-<!--     <script>
-        document.getElementById('sevenDayForecastBtn').addEventListener('click', function() {
-            var city = document.getElementById('cityInput').value;
-            if (city.trim() !== '') {
-                window.location.href = '/7dayforecast?city=' + encodeURIComponent(city);
-            }
-        });
-    </script> -->
-
 </body>
-
 </html>
