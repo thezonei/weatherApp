@@ -74,12 +74,14 @@
     #       - "80:80"
     #     volumes:
     #       - "/myfile1:/usr/local/apache2/htdocs/"
-    - name: Build Docker image from Dockerfile
+    - name: Build and tag the Docker image
       docker_image:
-        path: "/path/to/docker/context"  # Ensure this path is correct and contains the Dockerfile
-        name: my_flask_app
-        source: build  # This tells Ansible to build the image from the Dockerfile
-        state: present  # This ensures that the image should be present
+        path: "/path/to/docker/context"
+        name: "myusername/my_flask_app"
+        tag: "v1.0"
+        source: build
+        state: present
+
 
 
     - name: Run Flask app container
