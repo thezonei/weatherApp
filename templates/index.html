@@ -62,11 +62,17 @@
             text-align: center;
             margin-top: 20px;
         }
+         .center-content {
+            width: 50%; /* Control width of the centered content */
+            text-align: center; /* Center text inside the div */
+            border: 2px solid #000; /* Optional: for visual reference */
+            padding: 20px; /* Padding for aesthetics */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Weather Website</h1>
+       <div class= "center-content"> <h1>Weather Website</h1></div>
         <div class="input-group">
             <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
             <button id="weatherBtn">Get Weather</button>
