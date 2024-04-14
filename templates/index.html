@@ -15,37 +15,12 @@
             align-items: center;
         }
         .container {
-            max-width: 900px;
-            margin: 20px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Soft box shadow */
+            width: 100%; /* Full width */
+            max-width: 960px; /* Max width */
+            margin: auto; /* Centering */
         }
-        .menu-panel {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 8px;
+        .navbar {
             margin-bottom: 20px;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        input[type="text"], button {
-            padding: 10px;
-            border-radius: 5px;
-        }
-        button {
-            cursor: pointer;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            margin-left: 10px;
-            width: auto; /* Adjust width automatically */
-        }
-        button:hover {
-            background-color: #0056b3;
         }
         .forecast-grid {
             display: grid;
@@ -54,30 +29,34 @@
         }
         .forecast-item {
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
             padding: 10px;
             margin-top: 10px;
-        }
-        .weather, .forecast {
-            text-align: center;
-            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Weather Website</h1>
-        <button class="btn btn-info mb-2" type="button" data-toggle="collapse" data-target="#menuPanel" aria-expanded="true" aria-controls="menuPanel">
-            Toggle Search Panel
-        </button>
-        <div id="menuPanel" class="menu-panel collapse show">
-            <div class="input-group">
-                <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
-                <button id="weatherBtn" class="btn btn-primary">Get Weather</button>
-                <button id="forecastBtn" class="btn btn-secondary">7 Day Forecast</button>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Weather App</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
+                    </li>
+                    <li class="nav-item">
+                        <button id="weatherBtn" class="btn btn-primary ml-2">Get Weather</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="forecastBtn" class="btn btn-secondary ml-2">7 Day Forecast</button>
+                    </li>
+                </ul>
             </div>
-        </div>
+        </nav>
         <div class="weather" id="weatherResult">
             <!-- Current weather results will be displayed here -->
         </div>
@@ -129,14 +108,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.cod === "200") {
-                    const forecasts = data.list; // Assuming 'list' contains the forecast data
+                    const forecasts = data.list;
                     const forecastDiv = document.getElementById('forecastResult');
-                    forecastDiv.innerHTML = '<h2>7 Day Forecast</h2>'; // Clear previous content
+                    forecastDiv.innerHTML = '<h2>7 Day Forecast</h2>';
                     forecasts.forEach((forecast, index) => {
-                        if (index % 8 === 0) { // Example of how you might choose to display daily data
+                        if (index % 8 === 0) {
                             const dayBlock = document.createElement('div');
+                            dayBlock.className = 'forecast-item';
                             dayBlock.innerHTML = `
-                                <h3>${new Date(forecast.dt * 1000).toDateString()}</h3>
+                                <h3>${new Date(forecast.dt * 1000).toLocaleDateString()}</h3>
                                 <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" alt="Weather icon">
                                 <p>Temp: ${forecast.main.temp}°C</p>
                                 <p>Description: ${forecast.weather[0].description}</p>
