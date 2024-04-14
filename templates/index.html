@@ -7,20 +7,44 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background: linear-gradient(to bottom, #e0eafc, #cfdef3); /* Soft blue gradient background */
-            min-height: 100vh; /* Minimum height to cover the full viewport height */
-            margin: 0; /* Removes default margin */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+          
+            background: linear-gradient(to bottom, #e0eafc, #cfdef3);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+           
+            
         }
         .container {
-            width: 100%; /* Full width */
-            max-width: 960px; /* Max width */
-            margin: auto; /* Centering */
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
         }
-        .navbar {
+        .input-group {
             margin-bottom: 20px;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            width: calc(100% - 120px);
+        }
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            width: 100px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .forecast-grid {
             display: grid;
@@ -29,34 +53,31 @@
         }
         .forecast-item {
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
             padding: 10px;
             margin-top: 10px;
         }
+        .weather, .forecast {
+            text-align: center;
+            margin-top: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+         
     </style>
 </head>
 <body>
     <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Weather App</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
-                    </li>
-                    <li class="nav-item">
-                        <button id="weatherBtn" class="btn btn-primary ml-2">Get Weather</button>
-                    </li>
-                    <li class="nav-item">
-                        <button id="forecastBtn" class="btn btn-secondary ml-2">7 Day Forecast</button>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <h1>Weather Website</h1>
+        <div class="input-group">
+            <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
+            <button id="weatherBtn">Get Weather</button>
+            <button id="forecastBtn">7 Day Forecast</button>
+        </div>
         <div class="weather" id="weatherResult">
             <!-- Current weather results will be displayed here -->
         </div>
@@ -65,9 +86,6 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('weatherBtn').addEventListener('click', function() {
             var city = document.getElementById('cityInput').value;
@@ -94,7 +112,7 @@
                     `;
                     document.getElementById('weatherResult').innerHTML = weatherData;
                 } else {
-                    document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data: ${data.message}</p>`;
+                    throw new Error(`${data.message}`);
                 }
             })
             .catch(error => {
@@ -108,30 +126,52 @@
             .then(response => response.json())
             .then(data => {
                 if (data.cod === "200") {
-                    const forecasts = data.list;
-                    const forecastDiv = document.getElementById('forecastResult');
-                    forecastDiv.innerHTML = '<h2>7 Day Forecast</h2>';
-                    forecasts.forEach((forecast, index) => {
-                        if (index % 8 === 0) {
-                            const dayBlock = document.createElement('div');
-                            dayBlock.className = 'forecast-item';
-                            dayBlock.innerHTML = `
-                                <h3>${new Date(forecast.dt * 1000).toLocaleDateString()}</h3>
-                                <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" alt="Weather icon">
-                                <p>Temp: ${forecast.main.temp}°C</p>
-                                <p>Description: ${forecast.weather[0].description}</p>
-                            `;
-                            forecastDiv.appendChild(dayBlock);
-                        }
-                    });
+                    displayForecast(data.list);
                 } else {
-                    document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${data.message}</p>`;
+                    throw new Error(`${data.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error fetching forecast:', error);
                 document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${error.message}</p>`;
             });
+        }
+
+        function displayForecast(forecasts) {
+            const groupedForecasts = groupForecastsByDay(forecasts);
+            const container = document.getElementById('forecastResult');
+            container.innerHTML = '<h2>7 Day Forecast</h2>';
+            Object.keys(groupedForecasts).forEach(day => {
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'day-container';
+                dayContainer.innerHTML = `<h2 class="day-header">${day}</h2>`;
+                const squareContainer = document.createElement('div');
+                squareContainer.className = 'forecast-grid';
+                groupedForecasts[day].forEach(forecast => {
+                    const square = document.createElement('div');
+                    square.className = 'forecast-item';
+                    square.innerHTML = `
+                        <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png" alt="Weather Icon">
+                        <p>${new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p>${forecast.main.temp}°C</p>
+                        <p>${forecast.weather[0].description}</p>
+                    `;
+                    squareContainer.appendChild(square);
+                });
+                dayContainer.appendChild(squareContainer);
+                container.appendChild(dayContainer);
+            });
+        }
+
+        function groupForecastsByDay(forecasts) {
+            return forecasts.reduce((group, forecast) => {
+                const date = new Date(forecast.dt * 1000).toDateString();
+                if (!group[date]) {
+                    group[date] = [];
+                }
+                group[date].push(forecast);
+                return group;
+            }, {});
         }
     </script>
 </body>
