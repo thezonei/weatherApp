@@ -7,21 +7,26 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-          
-            background: linear-gradient(to bottom, #e0eafc, #cfdef3);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-           
-            
+            background: linear-gradient(to bottom, #e0eafc, #cfdef3); /* Soft blue gradient background */
+            min-height: 100vh; /* Minimum height to cover the full viewport height */
+            margin: 0; /* Removes default margin */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 900px;
-            margin: 50px auto;
+            margin: 20px;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
             border-radius: 10px;
-            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Soft box shadow */
+        }
+        .menu-panel {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         .input-group {
             margin-bottom: 20px;
@@ -30,9 +35,6 @@
             padding: 10px;
             border-radius: 5px;
         }
-        input[type="text"] {
-            width: calc(100% - 120px);
-        }
         button {
             cursor: pointer;
             background-color: #007bff;
@@ -40,8 +42,7 @@
             border: none;
             padding: 10px 20px;
             margin-left: 10px;
-            width: 100px;
-            border-radius: 5px;
+            width: auto; /* Adjust width automatically */
         }
         button:hover {
             background-color: #0056b3;
@@ -62,21 +63,20 @@
             text-align: center;
             margin-top: 20px;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-         
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Weather Website</h1>
-        <div class="input-group">
-            <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
-            <button id="weatherBtn">Get Weather</button>
-            <button id="forecastBtn">7 Day Forecast</button>
+        <button class="btn btn-info mb-2" type="button" data-toggle="collapse" data-target="#menuPanel" aria-expanded="true" aria-controls="menuPanel">
+            Toggle Search Panel
+        </button>
+        <div id="menuPanel" class="menu-panel collapse show">
+            <div class="input-group">
+                <input type="text" id="cityInput" class="form-control" placeholder="Enter city name" required>
+                <button id="weatherBtn" class="btn btn-primary">Get Weather</button>
+                <button id="forecastBtn" class="btn btn-secondary">7 Day Forecast</button>
+            </div>
         </div>
         <div class="weather" id="weatherResult">
             <!-- Current weather results will be displayed here -->
@@ -86,6 +86,9 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.getElementById('weatherBtn').addEventListener('click', function() {
             var city = document.getElementById('cityInput').value;
@@ -112,7 +115,7 @@
                     `;
                     document.getElementById('weatherResult').innerHTML = weatherData;
                 } else {
-                    throw new Error(`${data.message}`);
+                    document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data: ${data.message}</p>`;
                 }
             })
             .catch(error => {
@@ -126,52 +129,29 @@
             .then(response => response.json())
             .then(data => {
                 if (data.cod === "200") {
-                    displayForecast(data.list);
+                    const forecasts = data.list; // Assuming 'list' contains the forecast data
+                    const forecastDiv = document.getElementById('forecastResult');
+                    forecastDiv.innerHTML = '<h2>7 Day Forecast</h2>'; // Clear previous content
+                    forecasts.forEach((forecast, index) => {
+                        if (index % 8 === 0) { // Example of how you might choose to display daily data
+                            const dayBlock = document.createElement('div');
+                            dayBlock.innerHTML = `
+                                <h3>${new Date(forecast.dt * 1000).toDateString()}</h3>
+                                <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" alt="Weather icon">
+                                <p>Temp: ${forecast.main.temp}°C</p>
+                                <p>Description: ${forecast.weather[0].description}</p>
+                            `;
+                            forecastDiv.appendChild(dayBlock);
+                        }
+                    });
                 } else {
-                    throw new Error(`${data.message}`);
+                    document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${data.message}</p>`;
                 }
             })
             .catch(error => {
                 console.error('Error fetching forecast:', error);
                 document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${error.message}</p>`;
             });
-        }
-
-        function displayForecast(forecasts) {
-            const groupedForecasts = groupForecastsByDay(forecasts);
-            const container = document.getElementById('forecastResult');
-            container.innerHTML = '<h2>7 Day Forecast</h2>';
-            Object.keys(groupedForecasts).forEach(day => {
-                const dayContainer = document.createElement('div');
-                dayContainer.className = 'day-container';
-                dayContainer.innerHTML = `<h2 class="day-header">${day}</h2>`;
-                const squareContainer = document.createElement('div');
-                squareContainer.className = 'forecast-grid';
-                groupedForecasts[day].forEach(forecast => {
-                    const square = document.createElement('div');
-                    square.className = 'forecast-item';
-                    square.innerHTML = `
-                        <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png" alt="Weather Icon">
-                        <p>${new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                        <p>${forecast.main.temp}°C</p>
-                        <p>${forecast.weather[0].description}</p>
-                    `;
-                    squareContainer.appendChild(square);
-                });
-                dayContainer.appendChild(squareContainer);
-                container.appendChild(dayContainer);
-            });
-        }
-
-        function groupForecastsByDay(forecasts) {
-            return forecasts.reduce((group, forecast) => {
-                const date = new Date(forecast.dt * 1000).toDateString();
-                if (!group[date]) {
-                    group[date] = [];
-                }
-                group[date].push(forecast);
-                return group;
-            }, {});
         }
     </script>
 </body>
