@@ -8,15 +8,14 @@
     <style>
         body {
             background: linear-gradient(to bottom, #e0eafc, #cfdef3);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            min-height: 100vh;
+            margin: 0;
         }
         .container {
             max-width: 900px;
-            margin: 50px auto;
+            margin: auto;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
         }
@@ -27,8 +26,8 @@
         }
         .forecast-item {
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
             padding: 10px;
             margin-top: 10px;
         }
@@ -113,30 +112,52 @@
             .then(response => response.json())
             .then(data => {
                 if (data.cod === "200") {
-                    const forecasts = data.list;
-                    const forecastDiv = document.getElementById('forecastResult');
-                    forecastDiv.innerHTML = '<h2>7 Day Forecast</h2>';
-                    forecasts.forEach((forecast, index) => {
-                        if (index % 8 === 0) { // Assumes a forecast every 3 hours
-                            const dayBlock = document.createElement('div');
-                            dayBlock.className = 'forecast-item';
-                            dayBlock.innerHTML = `
-                                <h3>${new Date(forecast.dt * 1000).toLocaleDateString()}</h3>
-                                <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" alt="Weather icon">
-                                <p>Temp: ${forecast.main.temp}°C</p>
-                                <p>Description: ${forecast.weather[0].description}</p>
-                            `;
-                            forecastDiv.appendChild(dayBlock);
-                        }
-                    });
+                    displayForecast(data.list);
                 } else {
-                    document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${data.message}</p>`;
+                    throw new Error(`${data.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error fetching forecast:', error);
                 document.getElementById('forecastResult').innerHTML = `<p>Error fetching forecast data: ${error.message}</p>`;
             });
+        }
+
+        function displayForecast(forecasts) {
+            const groupedForecasts = groupForecastsByDay(forecasts);
+            const container = document.getElementById('forecastResult');
+            container.innerHTML = '<h2>7 Day Forecast</h2>';
+            Object.keys(groupedForecasts).forEach(day => {
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'day-container';
+                dayContainer.innerHTML = `<h2 class="day-header">${day}</h2>`;
+                const squareContainer = document.createElement('div');
+                squareContainer.className = 'forecast-grid';
+                groupedForecasts[day].forEach(forecast => {
+                    const square = document.createElement('div');
+                    square.className = 'forecast-item';
+                    square.innerHTML = `
+                        <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png" alt="Weather Icon">
+                        <p>${new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p>${forecast.main.temp}°C</p>
+                        <p>${forecast.weather[0].description}</p>
+                    `;
+                    squareContainer.appendChild(square);
+                });
+                dayContainer.appendChild(squareContainer);
+                container.appendChild(dayContainer);
+            });
+        }
+
+        function groupForecastsByDay(forecasts) {
+            return forecasts.reduce((group, forecast) => {
+                const date = new Date(forecast.dt * 1000).toDateString();
+                if (!group[date]) {
+                    group[date] = [];
+                }
+                group[date].push(forecast);
+                return group;
+            }, {});
         }
     </script>
 </body>
